@@ -12,18 +12,19 @@ mv phpMyAdmin-5.0.4-all-languages/ phpmyadmin/
 chown -R www-data:www-data /var/www
 cd /
 
-service mysql restart
-service nginx reload
-service nginx restart
-ln -s /etc/nginx/sites-available/wordpress /etc/nginx/sites-enabled/wordpress
-rm -rf /etc/nginx/sites-enabled/default
-/etc/init.d/php7.3-fpm start
-/etc/init.d/php7.3-fpm status
 
+service mysql restart
+echo "SET password FOR 'root'@'localhost' = password('password');" | mysql -u root
 echo "CREATE DATABASE wordpress;" | mysql -u root
 echo "CREATE USER 'wordpress'@'localhost';" | mysql -u root
 echo "SET password FOR 'wordpress'@'localhost' = password('password');" | mysql -u root
 echo "GRANT ALL PRIVILEGES ON wordpress.* TO 'wordpress'@'localhost' IDENTIFIED BY 'password';" | mysql -u root
 echo "FLUSH PRIVILEGES;" | mysql -u root
-echo "SET PASSWORD FOR 'root'@localhost = PASSWORD('password');" | mysql -u root
-while true; do echo "Working !!!"; sleep 2; done
+ln -sf /etc/nginx/sites-available/nginx_index_on.conf /etc/nginx/sites-enabled/ft_server
+rm -rf /etc/nginx/sites-enabled/default
+service nginx reload
+service nginx restart
+/etc/init.d/php7.3-fpm start
+/etc/init.d/php7.3-fpm status
+
+tail -f /var/log/nginx/access.log -f /var/log/nginx/error.log
